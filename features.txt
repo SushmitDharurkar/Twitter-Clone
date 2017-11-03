@@ -1,0 +1,38 @@
+Engine- async method Genserver  -
+
+
+
+Client:
+
+
+get followers - contact engine and get followers
+get tweets - contact engine and get tweets
+
+
+
+send tweet - send to engine -  engine will broadcast the tweet to followers
+receive tweet - print tweet send by server
+Add random followers - get all users, select random users, contact engine to update
+                       the followers
+
+
+Engine:
+
+
+get Users : give list of all users to client
+get tweets: give all tweets to user
+get followers: give all followers to user
+
+
+send tweet:  broadcast this tweet to the followers of user
+receive tweet: receive broadcasted tweet and send it to the user
+
+
+
+
+
+
+
+
+
+State of Engine: %{"users" => [pid1, pid2,....], "user_details" => %{pid => %{"tweets" => [], "followers" =>[]}}}
