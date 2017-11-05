@@ -54,11 +54,17 @@ defmodule Server do
     #     {:noreply, state}
     # end
 
+    def handle_call({:get_users}, _from, state) do
+        {:reply, state["users"], state}
+    end
+
+    def handle_call({:get_followers, user_pid}, _from, state) do
+        {:reply, state["user_details"][user_pid]["followers"], state}
+    end
+
     # def handle_cast({:set_neighbors, neighbors}, state) do
     #     {:noreply, Map.put(state, "neighbors", neighbors)}
     # end
     #
-    # def handle_call({:get_followers, user_id}, _from, state) do
-    #     {:reply, Map.fetch(state, count), state}
-    # end
+
 end

@@ -15,6 +15,16 @@ defmodule Project4 do
     # IO.inspect()
     Client.add_follower(server, user_pid1, user_pid2)
 
+    user_pid3 = spawn(fn -> 3 end) #This process ends after function executes
+    # IO.inspect()
+    Client.add_user(server, user_pid3)
+
+    Client.add_follower(server, user_pid1, user_pid3)
+
+    IO.inspect(Client.get_users(server), label: "Users: ")
+
+    IO.inspect(Client.get_followers(server, user_pid1), label: "Followers: ")
+
     receive do
       msg -> IO.puts(msg)
     end

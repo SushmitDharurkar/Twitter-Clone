@@ -12,13 +12,16 @@ defmodule Client do
     def add_follower(server, user_pid, follower_pid) do
         GenServer.cast(server, {:add_follower, user_pid, follower_pid})
     end
-    #
+
+    def get_users(server) do
+        GenServer.call(server, {:get_users})  #Returns a list of users
+    end
+
+    def get_followers(server, user_pid) do
+        GenServer.call(server, {:get_followers, user_pid})  #Returns a list of user followers
+    end
+
     # def set_neighbors(server, neighbors) do
     #     GenServer.cast(server, {:set_neighbors, neighbors})
-    # end
-    #
-    # def get_count(server) do
-    #     {:ok, count} = GenServer.call(server, {:get_count, "count"})
-    #     count
     # end
 end
