@@ -8,6 +8,10 @@ defmodule Client do
     def add_user(server, user_pid) do
         GenServer.cast(server, {:add_user, user_pid})
     end
+
+    def add_follower(server, user_pid, follower_pid) do
+        GenServer.cast(server, {:add_follower, user_pid, follower_pid})
+    end
     #
     # def set_neighbors(server, neighbors) do
     #     GenServer.cast(server, {:set_neighbors, neighbors})

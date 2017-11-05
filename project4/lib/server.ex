@@ -17,8 +17,26 @@ defmodule Server do
         user_details = Map.get(state, "user_details")
         user_details = Map.put(user_details, user_pid, %{"tweets" => [], "followers" => []})
         state = Map.put(state, "user_details", user_details)
-        
+
+         IO.inspect(state, label: "State after adding user: ")
+          # IO.inspect(Map.get(state, "users"))
+        #  IO.inspect(Map.get(state["user_details"], "tweets"))
+        {:noreply, state}
+    end
+
+    def handle_cast({:add_follower, user_pid, follower_pid}, state) do
+        #TODO Add checks if user doesn't exist
+
+        user_details_pid = state["user_details"][user_pid]
+        followers = user_details_pid["followers"]
+        user_details_pid = Map.put(user_details_pid, "followers", [follower_pid | followers])
+        user_details = state["user_details"]
+        user_details = Map.put(user_details, user_pid, user_details_pid)
+        state = Map.put(state, "user_details", user_details)
+
+        IO.inspect(state, label: "State after adding follower: ")
         # IO.inspect(Map.get(state, "users"))
+        # IO.inspect(state["user_details"][user_pid]["followers"])
         # IO.inspect(Map.get(state["user_details"], "tweets"))
         {:noreply, state}
     end
