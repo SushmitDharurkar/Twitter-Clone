@@ -13,6 +13,10 @@ defmodule Client do
         GenServer.cast(server, {:add_follower, user_pid, follower_pid})
     end
 
+    def send_tweet(server, user_pid, tweet) do
+        GenServer.cast(server, {:send_tweet, user_pid, tweet})
+    end
+
     def get_users(server) do
         GenServer.call(server, {:get_users})  #Returns a list of users
     end
@@ -20,8 +24,4 @@ defmodule Client do
     def get_followers(server, user_pid) do
         GenServer.call(server, {:get_followers, user_pid})  #Returns a list of user followers
     end
-
-    # def set_neighbors(server, neighbors) do
-    #     GenServer.cast(server, {:set_neighbors, neighbors})
-    # end
 end
