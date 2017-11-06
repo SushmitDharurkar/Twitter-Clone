@@ -35,4 +35,7 @@ receive tweet: receive broadcasted tweet and send it to the user
 
 
 
-State of Engine: %{"users" => [pid1, pid2,....], "user_details" => %{pid => %{"tweets" => [], "followers" =>[]}}}
+State of Engine: %{"users" => [pid1, pid2,....], "user_details" => %{pid => %{"tweets" => [], "followers" =>[], "notifications" => %{source_pid => [tweet1, ...]}}}}
+
+Add notifications in state for tweets from following users - Done
+Add hashtags fields in state
