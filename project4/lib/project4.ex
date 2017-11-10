@@ -1,7 +1,7 @@
 defmodule Project4 do
 
   def init_users(server) do
-    total_users = 5
+    total_users = 10
     Enum.map(1..total_users, fn x -> pid = spawn(Project4, :listen_for_tweets, [])
       Client.add_user(server, pid)
       pid 
