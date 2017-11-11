@@ -5,16 +5,36 @@ defmodule Client do
         GenServer.start_link(Server, :ok)
     end
 
-    def add_user(server, user_pid) do
-        GenServer.cast(server, {:add_user, user_pid})
+    def add_user(server, user_pid, user_name) do
+        GenServer.cast(server, {:add_user, user_pid, user_name})
     end
 
     def add_follower(server, user_pid, follower_pid) do
         GenServer.cast(server, {:add_follower, user_pid, follower_pid})
     end
 
-    def send_tweet(server, user_pid, tweet, hashtags, mentions) do
-        GenServer.cast(server, {:send_tweet, user_pid, tweet, hashtags, mentions})
+    def send_tweet(server, user_pid, tweet, hashtags, mentions, is_retweet) do
+        GenServer.cast(server, {:send_tweet, user_pid, tweet, hashtags, mentions, is_retweet})
+    end
+
+    def subscribe_to_tweet(server, user_pid, tweetId) do
+        GenServer.cast(server, {:subscribe_to_tweet, user_pid, tweetId})
+    end
+
+    def query_subscribed_tweets(server, user_pid) do
+        GenServer.call(server, {:query_subscribed_tweets, user_pid})
+    end
+
+    def query_retweets(server, user_pid) do
+        GenServer.call(server, {:get_retweets, user_pid})
+    end
+
+    def query_tweets_of_hashtag(server, hashtag) do
+        GenServer.call(server, {:get_tweets_of_hashtag, hashtag})
+    end
+
+    def query_tweets_of_mention(server, mention) do
+        GenServer.call(server, {:get_tweets_of_mention, mention})
     end
 
     def get_users(server) do

@@ -3,7 +3,7 @@ defmodule Project4 do
   def init_users(server) do
     total_users = 10
     Enum.map(1..total_users, fn x -> pid = spawn(Project4, :listen_for_tweets, [])
-      Client.add_user(server, pid)
+      Client.add_user(server, pid, "user"<> to_string(x) )
       pid 
     end)
   end 
@@ -21,11 +21,17 @@ defmodule Project4 do
   end
 
   def send_tweet(server, users) do
+
     Enum.each(users, fn user -> 
       tweet = "This is #mytweet some tweet #sometweet @sushmit @sanket"
       hashtags = extract_data(tweet, "#(\\S+)") #Extract hashtags in a tweet
       mentions = extract_data(tweet, "@(\\S+)") #Extract mentions in a tweet
-      Client.send_tweet(server, user, tweet, hashtags, mentions)
+
+      if(Enum.random([true, false])) do
+        Client.send_tweet(server, user, tweet, hashtags, mentions, true) # Retweet
+      else
+        Client.send_tweet(server, user, tweet, hashtags, mentions, false) # Tweet
+      end
     end)
   end
 
@@ -33,6 +39,14 @@ defmodule Project4 do
     {:ok, pattern} = Regex.compile(regex)
     matches = Regex.scan(pattern, tweet)
     Enum.map(matches, fn match -> Enum.at(match, 0) end)
+  end
+
+  def subscribe_to_tweet(server, user, tweetId) do
+    Client.subscribe_to_tweet(server, user, tweetId)
+  end
+
+  def query_subscribed_tweets(server, user) do
+    Client.get_subscribed_tweets(server, user)
   end
 
   def main(args \\ []) do
@@ -44,6 +58,10 @@ defmodule Project4 do
     add_random_followers(server, users)
     send_tweet(server, users)
     Client.print_state(server)
+
+    # :timer.sleep(1000)
+    # Get tweets of hashtags
+    # Client.query_tweets_of_hashtag(server, "#sometweet")
 
     """
     user_pid1 = spawn(Project4, :listen_for_tweets, [])

@@ -37,13 +37,14 @@ receive tweet: receive broadcasted tweet and send it to the user
 
 State of Engine: %{ "users" => %{pid1 => true/false, pid2 => true/false,....}, 
                     "usernames" => %{"usernam1" => pid1, "usernam2" => pid2,....}
+                    "tweets" => %{"tweetId1" => {tweet1, pid1}, "tweetId2" => {tweet2, pid2}....}
                     "user_details" => %{ pid => 
                                                 %{  "username" => "Unique name"
                                                     "tweets" => [], 
+                                                    "retweets" => [],
                                                     "followers" =>[], 
                                                     "notifications" => %{source_pid => [tweet1, ...]},
-                                                    "subscribed" => %{tweet1 => [pid1, ...], tweet2 => [pid2, ...]}
-                                                    "re-tweets" => %{pid1 => [tweet1, ...], pid2 => [tweet1, ...]}
+                                                    "subscribed" => [{tweet1, pidx}, {tweet52, pidy}]
                                                  }
                                        }
                     "hashtags" =>  %{ "hashtag1" => %{pid => [tweet1, tweet2, ...]}, ...}
