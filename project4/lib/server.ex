@@ -88,7 +88,7 @@ defmodule Server do
         end
 
         # Add tweetId and tweet to generic collection
-        tweets = Map.put(state["tweets"],:crypto.hash(:sha256, tweet) , {tweet, user_pid})
+        tweets = Map.put(state["tweets"],Base.encode16(:crypto.hash(:sha256, tweet)) , {tweet, user_pid})
         state = Map.put(state, "tweets", tweets)
 
     
