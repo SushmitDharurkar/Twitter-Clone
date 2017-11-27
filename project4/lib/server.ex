@@ -52,12 +52,12 @@ defmodule Server do
                     hashtags_map = Map.put(hashtags_map, hashtag, %{}) 
                 end
 
-                hashtag_details = hashtags_map[hashtag]   
+                hashtag_details = hashtags_map[hashtag]  
 
                 if(hashtag_details[user_pid] != nil) do
-                    hashtag_details = Map.put(hashtag_details, user_pid, [tweet | hashtag_details[user_pid]])
+                    hashtag_details = Map.put(hashtag_details, user_pid, [tweet] ++ hashtag_details[user_pid])
                 else
-                    hashtag_details = Map.put(hashtag_details, user_pid, [tweet])    
+                    hashtag_details = Map.put(hashtag_details, user_pid, [tweet])
                 end
                 
                 hashtags_map = Map.put(hashtags_map, hashtag, hashtag_details)
@@ -118,49 +118,78 @@ defmodule Server do
         {:noreply, state}
     end
 
-    def handle_cast({:subscribe_to_tweet, user_pid, tweetId}, state) do
-      {tweet, pid }= state["tweets"][tweetId]
-      user_details_pid = state["user_details"][user_pid]
-      subscribed = user_details_pid["subscribed"]
-      user_details_pid = Map.put(user_details_pid, "subscribed", [{tweet, pid} | subscribed])
-      {:noreply, Map.put(state, "user_details", user_details_pid)}
+    def handle_cast({:subscribe_to_tweet, user_pid, tweetId} ,state) do
+        # {tweet, pid }= state["tweets"][tweetId]
+        user_details = state["user_details"]
+        user_details_pid = state["user_details"][user_pid]
+        subscribed = user_details_pid["subscribed"]
+
+        user_details_pid = Map.put(user_details_pid, "subscribed", [tweetId] ++ subscribed)  
+        user_details = Map.put(user_details, user_pid, user_details_pid)
+        state = Map.put(state, "user_details", user_details)
+        {:noreply, state} 
     end
-    
 
     def handle_call({:get_users}, _from, state) do
         {:reply, state["users"], state}
+    end
+
+     def handle_call({:get_user_details, user_pid}, _from, state) do
+        {:reply, state["user_details"][user_pid], state}
     end
 
     def handle_call({:get_followers, user_pid}, _from, state) do
         {:reply, state["user_details"][user_pid]["followers"], state}
     end
 
-    def handle_call({:get_subscribed_tweets, user_pid}, from, state) do
+    def handle_call({:get_subscribed_tweets, user_pid}, _from, state) do
       {:reply, state["user_details"][user_pid]["subscribed"]}
     end
     
-    def handle_call({:get_retweets, user_pid}, from, state) do
+    def handle_call({:get_retweets, user_pid}, _from, state) do
       {:reply, state["user_details"][user_pid]["retweets"]}
     end
 
-    def handle_call({:get_tweets_of_hashtag, hashtag}, from, state) do
+    def handle_call({:get_tweets_of_hashtag, hashtag}, _from, state) do
       hashtag_map = state["hashtags"][hashtag]
-      keys = Map.keys(hashtag_map)
-      tweets = Enum.reduce(keys, [], fn(key, acc) -> acc = hashtag_map[key] end)
-      {:reply, tweets}
+      tweets = []
+      if hashtag_map != nil do
+        keys = Map.keys(hashtag_map)
+        if keys != nil do
+           tweets = Enum.reduce(keys, [], fn(key, acc) -> acc ++ hashtag_map[key] end)  
+        end
+      end
+      {:reply, tweets, state}
     end
 
-    def handle_call({:get_tweets_of_mention, mention}, from, state) do
+    def handle_call({:get_tweets_of_mention, mention}, _from, state) do
       mention_map = state["mentions"][mention]
-      keys = Map.keys(mention_map)
-      tweets = Enum.reduce(keys, [], fn(key, acc) -> acc = mention_map[key] end)
-      {:reply, tweets}
+      tweets = []
+      if mention_map != nil do
+        keys = Map.keys(mention_map)
+        if keys != nil do
+            tweets = Enum.reduce(keys, [], fn(key, acc) -> acc ++ mention_map[key] end)
+        end
+      end
+      {:reply, tweets, state}
     end
 
-    def handle_cast(:print_state, state) do
-      IO.inspect(state)
-      {:noreply, state}
+     def handle_call({:get_username, user_pid}, _from, state) do
+      {:reply, state["user_details"][user_pid]["username"], state}
     end
-    
+
+    def handle_call({:get_tweets}, _from, state) do
+      {:reply, state["tweets"], state}
+    end
+
+    def handle_call(:print_state, _from, state) do
+      IO.inspect(state)
+      {:reply, state , state}
+    end
+
+    def handle_call({:print_user, user_pid}, from, state) do
+      IO.inspect(state["user_details"][user_pid])
+      {:reply,state["user_details"][user_pid], state}
+    end
 
 end

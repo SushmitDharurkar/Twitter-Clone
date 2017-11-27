@@ -45,7 +45,23 @@ defmodule Client do
         GenServer.call(server, {:get_followers, user_pid})  #Returns a list of user followers
     end
 
+    def get_username(server, user_pid) do
+        GenServer.call(server, {:get_username, user_pid})  #Returns username
+    end
+
+    def get_tweets(server) do
+        GenServer.call(server, {:get_tweets})  #Returns a list of user tweets
+    end
+
+    def get_user_details(server, user_pid) do
+        GenServer.call(server, {:get_tweets, user_pid}) 
+    end
+
     def print_state(server) do
-        GenServer.cast(server, :print_state)
+        GenServer.call(server, :print_state)
+    end
+
+     def print_user(server, user_pid) do
+        GenServer.call(server, {:print_user, user_pid})
     end
 end

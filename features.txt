@@ -44,7 +44,7 @@ State of Engine: %{ "users" => %{pid1 => true/false, pid2 => true/false,....},
                                                     "retweets" => [],
                                                     "followers" =>[], 
                                                     "notifications" => %{source_pid => [tweet1, ...]},
-                                                    "subscribed" => [{tweet1, pidx}, {tweet52, pidy}]
+                                                    "subscribed" => [tweetId1, tweetId2, ....]
                                                  }
                                        }
                     "hashtags" =>  %{ "hashtag1" => %{pid => [tweet1, tweet2, ...]}, ...}
