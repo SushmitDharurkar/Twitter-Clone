@@ -1,12 +1,16 @@
 defmodule Project4 do
 
-  def init_users(server) do
-    total_users = 10
+  def init_users(server, total_users) do
     Enum.map(1..total_users, fn x -> pid = spawn(Project4, :listen_for_tweets, [])
       Client.add_user(server, pid, "user"<> to_string(x) )
       pid 
     end)
   end 
+
+  def init_users(server, total_users) do
+    pid = spawn(Project4, :listen_for_tweets, [])
+    Client.add_user(server, pid, "user"<> to_string(x) )
+  end
 
   def add_random_followers(server, users) do
     total_users = length(users)
@@ -70,15 +74,23 @@ defmodule Project4 do
      end)
   end
 
-  def query_subscribed_tweets(server, user) do
-    Client.get_subscribed_tweets(server, user)
-  end
-
   def main(args \\ []) do
+
+    {_, input, _} = OptionParser.parse(args)
+
+    if length(input) == 1 do
+      numNodes = String.to_integer(List.first(input))
+
+      if numNodes < 10 do
+        numNodes = 10
+      end
+    else
+      numNodes = 10
+    end
 
     {_, server} = Client.start_link("")
 
-    users = init_users(server)
+    users = init_users(server, numNodes)
     # IO.inspect(users)
     add_random_followers(server, users)
     send_tweet(server, users)
@@ -86,17 +98,31 @@ defmodule Project4 do
     # Subscribe to random tweets
     subscribe_to_tweet(server, users)    
 
-    Client.print_state(server)
+    # Client.print_state(server)
 
-    IO.inspect "Printing of state is completed"
+    state = Client.get_state(server)
+
+    IO.puts ""
+    IO.inspect numNodes, label: "Number of users present"
+    IO.puts ""
+
+    IO.inspect length(Map.keys(state["tweets"])), label: "Total tweets till now"
+    IO.puts ""
 
     tweets = Client.query_tweets_of_hashtag(server, "#DOS")
-    IO.inspect tweets, label: "These are the tweets from #DOS"
+    IO.inspect length(tweets), label: "Total tweets with hashtag #DOS "
+    IO.puts "Tweets (Showing Max 10): "
+    IO.inspect Enum.take(tweets, 10)
+    IO.puts ""
 
     tweets = Client.query_tweets_of_mention(server, "@user1")
-    IO.inspect tweets, label: "These are the tweets from mention @user1"
-
-    # Client.print_user(server, Enum.at(users, 0))
+    IO.inspect length(tweets), label: "Total tweets with mention @user1"
+    IO.puts "Tweets (Showing Max 10): "
+    IO.inspect Enum.take(tweets, 10)
+    IO.puts ""
+    
+    IO.puts "Printing user1 details:"
+    Client.print_user(server, Enum.at(users, 0))
     # Client.print_user(server, Enum.at(users, 1))
 
     # :timer.sleep(1000)

@@ -8,7 +8,7 @@ defmodule Server do
 
     def handle_cast({:add_user, user_pid, user_name}, state) do
         users = state["users"]
-        active_user = Map.put(state["users"], user_pid, true)  # Set active = true initially
+        active_user = Map.put(state["users"], user_pid, Enum.random([true, false]))  # Set active = true initially
         state = Map.put(state, "users", active_user)
         username_map = Map.put(state["usernames"], user_name, user_pid)
         state = Map.put(state, "usernames", username_map)
@@ -182,8 +182,7 @@ defmodule Server do
       {:reply, state["tweets"], state}
     end
 
-    def handle_call(:print_state, _from, state) do
-      IO.inspect(state)
+    def handle_call(:get_state, _from, state) do
       {:reply, state , state}
     end
 
