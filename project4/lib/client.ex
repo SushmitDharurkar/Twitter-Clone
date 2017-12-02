@@ -54,7 +54,7 @@ defmodule Client do
     end
 
     def get_user_details(server, user_pid) do
-        GenServer.call(server, {:get_tweets, user_pid}) 
+        GenServer.call(server, {:get_user_details, user_pid})
     end
 
     def get_state(server) do

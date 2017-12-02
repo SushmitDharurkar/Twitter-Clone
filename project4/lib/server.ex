@@ -45,45 +45,45 @@ defmodule Server do
 
             # Update the hashtags map
             # %{"hashtags" => %{"hashtag": %{pid => []}}
-        
-            state = Enum.reduce(hashtags, state, fn(hashtag, state) -> 
+
+            state = Enum.reduce(hashtags, state, fn(hashtag, state) ->
                 hashtags_map = state["hashtags"]
                 if hashtags_map[hashtag] == nil do
-                    hashtags_map = Map.put(hashtags_map, hashtag, %{}) 
+                    hashtags_map = Map.put(hashtags_map, hashtag, %{})
                 end
 
-                hashtag_details = hashtags_map[hashtag]  
+                hashtag_details = hashtags_map[hashtag]
 
                 if(hashtag_details[user_pid] != nil) do
                     hashtag_details = Map.put(hashtag_details, user_pid, [tweet] ++ hashtag_details[user_pid])
                 else
                     hashtag_details = Map.put(hashtag_details, user_pid, [tweet])
                 end
-                
+
                 hashtags_map = Map.put(hashtags_map, hashtag, hashtag_details)
-                state = Map.put(state, "hashtags", hashtags_map) 
+                state = Map.put(state, "hashtags", hashtags_map)
             end)
 
             # Update the mentions map
             # %{"mentions" => %{"mention": %{pid => []}}
-        
-            state = Enum.reduce(mentions, state, fn(mention, state) -> 
+
+            state = Enum.reduce(mentions, state, fn(mention, state) ->
 
                 mentions_map = state["mentions"]
                 if mentions_map[mention] == nil do
-                    mentions_map = Map.put(mentions_map, mention, %{}) 
+                    mentions_map = Map.put(mentions_map, mention, %{})
                 end
 
-                mention_details = mentions_map[mention]   
+                mention_details = mentions_map[mention]
 
                 if(mention_details[user_pid] != nil) do
                     mention_details = Map.put(mention_details, user_pid, [tweet | mention_details[user_pid]])
                 else
-                    mention_details = Map.put(mention_details, user_pid, [tweet])    
+                    mention_details = Map.put(mention_details, user_pid, [tweet])
                 end
-                
+
                 mentions_map = Map.put(mentions_map, mention, mention_details)
-                state = Map.put(state, "mentions", mentions_map) 
+                state = Map.put(state, "mentions", mentions_map)
             end)
         end
 
@@ -91,7 +91,7 @@ defmodule Server do
         tweets = Map.put(state["tweets"],Base.encode16(:crypto.hash(:sha256, tweet)) , {tweet, user_pid})
         state = Map.put(state, "tweets", tweets)
 
-    
+
         user_details = state["user_details"]
         user_details = Map.put(user_details, user_pid, user_details_pid)
         state = Map.put(state, "user_details", user_details)
@@ -124,10 +124,10 @@ defmodule Server do
         user_details_pid = state["user_details"][user_pid]
         subscribed = user_details_pid["subscribed"]
 
-        user_details_pid = Map.put(user_details_pid, "subscribed", [tweetId] ++ subscribed)  
+        user_details_pid = Map.put(user_details_pid, "subscribed", [tweetId] ++ subscribed)
         user_details = Map.put(user_details, user_pid, user_details_pid)
         state = Map.put(state, "user_details", user_details)
-        {:noreply, state} 
+        {:noreply, state}
     end
 
     def handle_call({:get_users}, _from, state) do
@@ -143,11 +143,11 @@ defmodule Server do
     end
 
     def handle_call({:get_subscribed_tweets, user_pid}, _from, state) do
-      {:reply, state["user_details"][user_pid]["subscribed"]}
+      {:reply, state["user_details"][user_pid]["subscribed"], state}
     end
-    
+
     def handle_call({:get_retweets, user_pid}, _from, state) do
-      {:reply, state["user_details"][user_pid]["retweets"]}
+      {:reply, state["user_details"][user_pid]["retweets"], state}
     end
 
     def handle_call({:get_tweets_of_hashtag, hashtag}, _from, state) do
@@ -156,7 +156,7 @@ defmodule Server do
       if hashtag_map != nil do
         keys = Map.keys(hashtag_map)
         if keys != nil do
-           tweets = Enum.reduce(keys, [], fn(key, acc) -> acc ++ hashtag_map[key] end)  
+           tweets = Enum.reduce(keys, [], fn(key, acc) -> acc ++ hashtag_map[key] end)
         end
       end
       {:reply, tweets, state}

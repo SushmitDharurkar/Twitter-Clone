@@ -3,13 +3,8 @@ defmodule Project4 do
   def init_users(server, total_users) do
     Enum.map(1..total_users, fn x -> pid = spawn(Project4, :listen_for_tweets, [])
       Client.add_user(server, pid, "user"<> to_string(x) )
-      pid 
+      pid
     end)
-  end 
-
-  def init_users(server, total_users) do
-    pid = spawn(Project4, :listen_for_tweets, [])
-    Client.add_user(server, pid, "user"<> to_string(x) )
   end
 
   def add_random_followers(server, users) do
@@ -26,13 +21,13 @@ defmodule Project4 do
 
   def send_tweet(server, users) do
 
-    #Get usernames 
+    #Get usernames
     total_users = length(users)
     user_names = []
 
     user_names = Enum.map(users, fn user ->  Client.get_username(server, user) end)
-    
-    Enum.each(users, fn user -> 
+
+    Enum.each(users, fn user ->
       [u1, u2] = Enum.take_random(user_names , 2)
       tweet1 = "Some random tweet #randomtweet #newtweet @" <> u1 <> " @" <> u2
       [u1, u2] = Enum.take_random(user_names , 2)
@@ -65,7 +60,7 @@ defmodule Project4 do
 
     tweets = Client.get_tweets(server)
 
-    Enum.each(users, fn user -> 
+    Enum.each(users, fn user ->
         [tweetId_atom] = Enum.take_random(Map.keys(tweets), 1)
         tweetId = to_string(tweetId_atom)
         if(Enum.random([true, false])) do
@@ -96,7 +91,7 @@ defmodule Project4 do
     send_tweet(server, users)
 
     # Subscribe to random tweets
-    subscribe_to_tweet(server, users)    
+    subscribe_to_tweet(server, users)
 
     # Client.print_state(server)
 
@@ -120,45 +115,9 @@ defmodule Project4 do
     IO.puts "Tweets (Showing Max 10): "
     IO.inspect Enum.take(tweets, 10)
     IO.puts ""
-    
+
     IO.puts "Printing user1 details:"
     Client.print_user(server, Enum.at(users, 0))
-    # Client.print_user(server, Enum.at(users, 1))
-
-    # :timer.sleep(1000)
-    # Get tweets of hashtags
-    # IO.inspecr Client.query_tweets_of_hashtag(server, "#DOS")
-
-    """
-    user_pid1 = spawn(Project4, :listen_for_tweets, [])
-
-    Client.add_user(server, user_pid1)
-
-    user_pid2 = spawn(Project4, :listen_for_tweets, [])
-
-    Client.add_user(server, user_pid2)
-
-    user_pid3 = spawn(Project4, :listen_for_tweets, [])
-    
-    Client.add_user(server, user_pid3)
-
-    Client.add_follower(server, user_pid1, user_pid2)
-
-    Client.add_follower(server, user_pid1, user_pid3)
-
-    Client.add_follower(server, user_pid2, user_pid3)
-
-    IO.inspect(Client.get_users(server), label: "Users: ")
-
-    # IO.inspect(Client.get_followers(server, user_pid1), label: "Followers: ")
-
-    Client.send_tweet(server, user_pid1, "First tweet!!")
-
-    Client.send_tweet(server, user_pid2, "Second tweet!!")
-
-    Client.send_tweet(server, user_pid1, "Third tweet!!")
-
-    """
 
     receive do
       msg -> IO.puts(msg)
