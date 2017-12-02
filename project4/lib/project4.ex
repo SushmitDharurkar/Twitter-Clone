@@ -7,11 +7,6 @@ defmodule Project4 do
     end)
   end 
 
-  def init_users(server, total_users) do
-    pid = spawn(Project4, :listen_for_tweets, [])
-    Client.add_user(server, pid, "user"<> to_string(x) )
-  end
-
   def add_random_followers(server, users) do
     total_users = length(users)
     max_followers = trunc(:math.ceil(total_users * 0.2))
