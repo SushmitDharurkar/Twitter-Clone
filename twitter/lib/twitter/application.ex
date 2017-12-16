@@ -6,18 +6,63 @@ defmodule Twitter.Application do
   def start(_type, _args) do
     import Supervisor.Spec
 
-    # Define workers and child supervisors to be supervised
-    children = [
-      # Start the endpoint when the application starts
-      supervisor(TwitterWeb.Endpoint, []),
-      # Start your own worker by calling: Twitter.Worker.start_link(arg1, arg2, arg3)
-      # worker(Twitter.Worker, [arg1, arg2, arg3]),
-    ]
+    :ets.new(:user_lookup, [:set, :public, :named_table])
 
-    # See https://hexdocs.pm/elixir/Supervisor.html
-    # for other strategies and supported options
+    children = [supervisor(TwitterWeb.Endpoint, []),
+                worker(TwitterWeb.Server, [%{}])
+              ]
+    total_users = 100
+
+
+    # Adding muliple clients here
+    children = children ++ Enum.map(1..total_users, fn x ->
+        worker(Twitter.SocketClient, [to_string(x), total_users], id: x)
+    end)
+
     opts = [strategy: :one_for_one, name: Twitter.Supervisor]
-    Supervisor.start_link(children, opts)
+    {:ok, pid} = Supervisor.start_link(children, opts)
+
+    children = Supervisor.which_children(pid)
+    children = Enum.filter(children, fn(x) -> is_integer(elem(x, 0)) end)
+
+    :timer.sleep(50000)
+
+    tweets = TwitterWeb.Server.query_tweets_of_hashtag( "#DOS")
+    IO.inspect length(tweets), label: "Total tweets with hashtag #DOS "
+    IO.puts "Tweets (Showing Max 10): "
+    IO.inspect Enum.take(tweets, 10)
+    IO.puts ""
+
+    tweets = TwitterWeb.Server.query_tweets_of_mention("@user1")
+    IO.inspect length(tweets), label: "Total tweets with mention @user1"
+    IO.puts "Tweets (Showing Max 10): "
+    IO.inspect Enum.take(tweets, 10)
+    IO.puts ""
+
+    IO.puts "Printing user1 details:"
+    TwitterWeb.Server.print_user("1")
+    # TwitterWeb.Server.print_state()
+
+    wait()
+  end
+
+  def wait() do
+    receive do
+      {msg} -> IO.inspect msg
+    end
+  end
+
+  def subscribe_to_tweet(server, users) do
+
+    tweets = Client.get_tweets(server)
+
+    Enum.each(users, fn user ->
+        [tweetId_atom] = Enum.take_random(Map.keys(tweets), 1)
+        tweetId = to_string(tweetId_atom)
+        if(Enum.random([true, false])) do
+          Client.subscribe_to_tweet(server, user, tweetId)
+        end
+     end)
   end
 
   # Tell Phoenix to update the endpoint configuration
